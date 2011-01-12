@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<project name="hoppity" default="dist" basedir=".">
+	
+	<property name="keyword" value="hoppity"/>
+	<property name="mainclass" value="hoppity.Hoppity"/>
+	
+	<property name="classes" location="bin" />
+	<property name="source" location="src" />
+	<property name="libraries" location="lib" />
+
+	<property name="build.num.file" location=".build.num" />
+	
+	<property name="version.num" value="1.00"/>
+	<tstamp>
+		<format property="date" pattern="yyyy-MM-dd HH:mm:ss" />
+	</tstamp>
+	
+	<path id="classpath">
+		<fileset dir="${libraries}">
+			<include name="**${file.separator}*.jar" />
+		</fileset>
+		<dirset dir="${classes}" />
+	</path>
+
+	<target name="compile">
+		<tstamp/>
+		<mkdir dir="${classes}" />
+		<javac srcdir="${source}" destdir="${classes}" source="1.6" target="1.6" debug="on">
+			<classpath refid="classpath"/>
+		</javac>
+	</target>
+
+	<target name="clean">
+		<delete dir="${classes}" />
+<!--		<delete file="${build.num.file}" />-->
+		<delete file="${keyword}" />
+		<delete file="${keyword}.jar" />
+	</target>
+
+	<target name="dist" depends="compile">
+		<buildnumber file="${build.num.file}"/>
+	    <manifestclasspath property="jar.classpath" jarfile="${keyword}.jar">
+	      <classpath refid="classpath" />
+	    </manifestclasspath>
+		<jar destfile="${keyword}.jar" basedir="${classes}">
+			<manifest>
+		        <attribute name="Built-By" value="${user.name}"/>
+		        <attribute name="Main-Class" value="${mainclass}"/>
+				<attribute name="Implementation-Version" value="${version.num}-b${build.number}"/>
+				<attribute name="Built-Date" value="${date}"/>
+				<attribute name="Class-Path" value="${jar.classpath}"/>
+		    </manifest>
+		</jar>
+		<echo message="#!/bin/bash&#x0A;java -cp &quot;${0%/*}&quot; -Xmx1024M -jar ${keyword}.jar &quot;$@&quot;&#x0A;" file="${keyword}"/>
+		<chmod file="${keyword}" perm="a+x"/>
+	</target>
+	
+	<target name="archive">
+		<zip destfile="${keyword}.zip" basedir="." excludes="**/.**, **/.settings/**" />
+	</target>
+	
+</project>
+

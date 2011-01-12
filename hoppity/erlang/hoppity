@@ -1,0 +1,12 @@
+#!/usr/bin/env escript
+
+main([Filename]) ->
+    {ok, File} = file:open(Filename,read),
+    [N|_] = string:tokens(io:get_line(File,'')," \t\n"),
+    hoppity(1,list_to_integer(N)).
+
+hoppity(N,Max) when N =< Max, N rem 3 =:= 0, N rem 5 =:= 0 -> io:format("Hop\n"), hoppity(N+1, Max);
+hoppity(N,Max) when N =< Max, N rem 3 =:= 0 -> io:format("Hoppity\n"), hoppity(N+1, Max);
+hoppity(N,Max) when N =< Max, N rem 5 =:= 0 -> io:format("Hophop\n"), hoppity(N+1, Max);
+hoppity(N,Max) when N =< Max -> hoppity(N+1, Max);
+hoppity(_,_) -> done.

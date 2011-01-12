@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+File.open(ARGV[0]) do |file|
+  n = file.readline.strip.to_i
+  1.upto(n) do |i|
+    if i % 3 == 0 && i % 5 == 0
+      puts "Hop"
+    elsif i % 3 == 0
+      puts "Hoppity"
+    elsif i % 5 == 0
+      puts "Hophop"
+    end
+  end
+end
