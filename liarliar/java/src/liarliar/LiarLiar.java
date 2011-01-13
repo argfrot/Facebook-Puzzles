@@ -43,6 +43,7 @@ public class LiarLiar {
                people.put(name, accused);
             }
             current.accuse(accused);
+            accused.accuse(current); // make graph undirected
          }
       }
       
@@ -57,26 +58,6 @@ public class LiarLiar {
           delim = delimiter;
       }
       return buffer.toString();
-   }
-
-   /**
-    * Keep trying to infer the labels for each node until no further changes
-    * occur and therefore no new inferences are possible.
-    * @param people The list of nodes in the graph.
-    * @throws Exception If we encounter a contradiction during the current colouring (not possible though).
-    */
-   private static void solve(Collection<Person> people) throws Exception {
-      Queue<Person> unlabelled = new LinkedList<Person>();
-      unlabelled.addAll(people);
-      while (!unlabelled.isEmpty()) {
-         Person current = unlabelled.poll();
-         if (current.isLabelled()) continue;
-         if (current.inferLabel()) {
-            bfs(current);
-         } else {
-            unlabelled.add(current);
-         }
-      }
    }
 
    /**
@@ -102,11 +83,11 @@ public class LiarLiar {
    
    public static void main(String[] args) throws Exception {
       Collection<Person> people = loadTerms(new FileReader(args[0]));
-      Person person = people.iterator().next();
-      person.setLiar(false);
-      bfs(person);
-      solve(people);
-      // there should be no contradictions as each colouring is equivalent and there is guaranteed to be a solution.
+      if (people.size() > 0) {
+         Person person = people.iterator().next();
+         person.setLiar(false);
+         bfs(person);
+      }
 //      System.out.println(join(people, "\n"));
       int count = 0;
       for (Person p : people) {

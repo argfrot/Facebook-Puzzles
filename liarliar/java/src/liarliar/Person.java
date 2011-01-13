@@ -62,28 +62,6 @@ public class Person {
       my_isLabelled = true;
    }
 
-   /**
-    * Infer the label of an unlabelled node from those that it has accused.
-    * @return If an inference was made which changed the state of this node.
-    * @throws Exception If a contradiction occurs.
-    */
-   public boolean inferLabel() throws Exception {
-      if (isLabelled()) return false;
-
-      boolean accusedAreLiars = false;
-      boolean accusedLabelled = false;
-      for (Person p : my_accused) {
-         if (p.isLabelled()) {
-            accusedAreLiars = p.isLiar();
-            accusedLabelled = true;
-            break;
-         }
-      }
-      
-      if (accusedLabelled) setLiar(!accusedAreLiars);
-      return accusedLabelled;
-   }
-
    private static final String join(final Collection<Person> list, final String delimiter) {
       StringBuffer buffer = new StringBuffer();
       String delim = "";
