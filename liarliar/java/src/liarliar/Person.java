@@ -51,29 +51,20 @@ public class Person {
    }
 
    public boolean inferLabel() throws Exception {
-      // if all accused are not liars, we must have lied
-      // if all accused are liars, we have told the truth
-      // if any remain unlabelled we can't be sure yet...
-      // if there's a mixture, there's a contradiction
-      
       if (isLabelled()) return false;
 
       boolean accusedAreLiars = false;
       boolean accusedLabelled = false;
       for (Person p : my_accused) {
-         if (!p.isLabelled()) {
-            return false;
-         } else if (!accusedLabelled) {
+         if (p.isLabelled()) {
             accusedAreLiars = p.isLiar();
             accusedLabelled = true;
-         } else if (accusedAreLiars != p.isLiar()) {
-            throw new Exception("Contradiction at person: " + p);
+            break;
          }
       }
       
-      my_isLabelled = true;
-      my_isLiar = !accusedAreLiars;
-      return true;
+      if (accusedLabelled) setLiar(!accusedAreLiars);
+      return accusedLabelled;
    }
 
    private static final String join(final Collection<Person> list, final String delimiter) {

@@ -69,6 +69,9 @@ public class LiarLiar {
          System.out.println(e);
          System.out.println();
          System.out.println(join(people, "\n"));
+         for (Person p : people) {
+            p.clear();
+         }
          person.setLiar(false);
          solve(people);
       }
