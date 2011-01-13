@@ -5,7 +5,9 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * Solve the 'liarliar' Facebook Engineering puzzle.
@@ -68,7 +70,31 @@ public class LiarLiar {
       while (changed) {
          changed = false;
          for (Person p : people) {
-            if (p.inferLabel()) changed = true;
+            if (p.inferLabel()) {
+               changed = true;
+               bfs(p);
+            }
+         }
+      }
+   }
+
+   /**
+    * Rather than having the nodes propagate their values down through the
+    * graph, use a breadth first traversal to avoid stack overflow in large
+    * graphs.
+    * @param head The node to start the propagation of values from.
+    * @throws Exception If a contradiction occurs.
+    */
+   public static void bfs(Person head) throws Exception {
+      Queue<Person> outstanding = new LinkedList<Person>();
+      outstanding.add(head);
+      while (!outstanding.isEmpty()) {
+         Person current = outstanding.poll();
+         for (Person p : current.getAccused()) {
+            if (!p.isLabelled()) {
+               p.setLiar(!current.isLiar());
+               outstanding.add(p);
+            }
          }
       }
    }
@@ -77,11 +103,13 @@ public class LiarLiar {
       Collection<Person> people = loadTerms(new FileReader(args[0]));
       Person person = people.iterator().next();
       person.setLiar(false);
+      bfs(person);
       solve(people);
       // there should be no contradictions as each colouring is equivalent and there is guaranteed to be a solution.
 //      System.out.println(join(people, "\n"));
       int count = 0;
       for (Person p : people) {
+         if (!p.isLabelled()) throw new Exception("Oh dear. Unable to find a solution!");
          if (p.isLiar()) count++;
       }
       count = Math.max(count, people.size()-count);

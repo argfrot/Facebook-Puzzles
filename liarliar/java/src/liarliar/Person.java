@@ -28,6 +28,10 @@ public class Person {
       return my_name;
    }
    
+   public List<Person> getAccused() {
+      return my_accused;
+   }
+   
    public void accuse(Person p) {
       my_accused.add(p);
    }
@@ -45,7 +49,7 @@ public class Person {
    }
    
    /**
-    * Label this node. Goes on to set the labels of those it accuses recursively.
+    * Label this node.
     * @param label The label to set on this node.
     * @throws Exception If a contradiction is detected.
     */
@@ -56,15 +60,10 @@ public class Person {
       }
       my_isLiar = label;
       my_isLabelled = true;
-      for (Person accused : my_accused) {
-         accused.setLiar(!my_isLiar);
-      }
    }
 
    /**
-    * Infer the label of an unlabelled node from those that it has accused. If
-    * this node may be inferred, goes on to set the label for those it accuses
-    * if necessary.
+    * Infer the label of an unlabelled node from those that it has accused.
     * @return If an inference was made which changed the state of this node.
     * @throws Exception If a contradiction occurs.
     */
