@@ -66,14 +66,15 @@ public class LiarLiar {
     * @throws Exception If we encounter a contradiction during the current colouring (not possible though).
     */
    private static void solve(Collection<Person> people) throws Exception {
-      boolean changed = true;
-      while (changed) {
-         changed = false;
-         for (Person p : people) {
-            if (p.inferLabel()) {
-               changed = true;
-               bfs(p);
-            }
+      Queue<Person> unlabelled = new LinkedList<Person>();
+      unlabelled.addAll(people);
+      while (!unlabelled.isEmpty()) {
+         Person current = unlabelled.poll();
+         if (current.isLabelled()) continue;
+         if (current.inferLabel()) {
+            bfs(current);
+         } else {
+            unlabelled.add(current);
          }
       }
    }
