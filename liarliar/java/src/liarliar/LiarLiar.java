@@ -33,7 +33,6 @@ public class LiarLiar {
          line = line.trim();
          if (line.equals("")) continue;
          String[] split = line.split("\\s+");
-         System.out.println(Arrays.toString(split));
          String name = split[0];
          if (split.length == 2) {
             current = people.get(name);
