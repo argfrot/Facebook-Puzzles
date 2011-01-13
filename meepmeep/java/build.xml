@@ -17,7 +17,7 @@
 	</tstamp>
 	
 	<path id="classpath">
-		<fileset dir="${libraries}">
+		<fileset dir="${libraries}" erroronmissingdir="false">
 			<include name="**${file.separator}*.jar" />
 		</fileset>
 		<dirset dir="${classes}" />
