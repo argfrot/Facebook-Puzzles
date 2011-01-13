@@ -26,7 +26,7 @@
 	<target name="compile">
 		<tstamp/>
 		<mkdir dir="${classes}" />
-		<javac srcdir="${source}" destdir="${classes}" source="1.6" target="1.6" debug="on">
+		<javac srcdir="${source}" destdir="${classes}" source="1.5" target="1.5" debug="on">
 			<classpath refid="classpath"/>
 		</javac>
 	</target>
@@ -36,6 +36,7 @@
 <!--		<delete file="${build.num.file}" />-->
 		<delete file="${keyword}" />
 		<delete file="${keyword}.jar" />
+		<delete file="${keyword}.zip" />
 	</target>
 
 	<target name="dist" depends="compile">
@@ -56,7 +57,7 @@
 		<chmod file="${keyword}" perm="a+x"/>
 	</target>
 	
-	<target name="archive">
+	<target name="archive" depends="clean">
 		<zip destfile="${keyword}.zip" basedir="." excludes="**/.**, **/.settings/**" />
 	</target>
 	
