@@ -3,6 +3,7 @@ package liarliar;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,13 +23,17 @@ public class LiarLiar {
    public static Collection<Person> loadTerms(Reader input) throws Exception {
       Map<String, Person> people = new HashMap<String, Person>();
       
-      BufferedReader in = new BufferedReader(input);
-      /*int numberPeople = */Integer.parseInt(in.readLine().trim());
-      
       String line;
+      BufferedReader in = new BufferedReader(input);
+      while ((line = in.readLine()) != null && line.trim().equals("")); // throw away the first nonblank line
+      /*int numberPeople = Integer.parseInt(line); */
+      
       Person current = null;
       while ((line = in.readLine()) != null) {
+         line = line.trim();
+         if (line.equals("")) continue;
          String[] split = line.split("\\s+");
+         System.out.println(Arrays.toString(split));
          String name = split[0];
          if (split.length == 2) {
             current = people.get(name);
