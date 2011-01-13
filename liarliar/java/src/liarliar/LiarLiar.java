@@ -7,7 +7,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Solve the 'liarliar' Facebook Engineering puzzle.
+ * 
+ * This is essentially a graph colouring problem with two colours --- determine the
+ * sets in a bipartite graph. Followed by counting the numbers of nodes in each.
+ * 
+ * @author Graham Williamson
+ */
 public class LiarLiar {
+
    public static Collection<Person> loadTerms(Reader input) throws Exception {
       Map<String, Person> people = new HashMap<String, Person>();
       
@@ -47,7 +56,13 @@ public class LiarLiar {
       }
       return buffer.toString();
    }
-   
+
+   /**
+    * Keep trying to infer the labels for each node until no further changes
+    * occur and therefore no new inferences are possible.
+    * @param people The list of nodes in the graph.
+    * @throws Exception If we encounter a contradiction during the current colouring (not possible though).
+    */
    private static void solve(Collection<Person> people) throws Exception {
       boolean changed = true;
       while (changed) {
@@ -60,23 +75,16 @@ public class LiarLiar {
    
    public static void main(String[] args) throws Exception {
       Collection<Person> people = loadTerms(new FileReader(args[0]));
-      System.out.println(join(people, "\n"));
       Person person = people.iterator().next();
-      try {
-         person.setLiar(true);
-         solve(people);
-      } catch (Exception e) {
-         System.out.println(e);
-         System.out.println();
-         System.out.println(join(people, "\n"));
-         for (Person p : people) {
-            p.clear();
-         }
-         person.setLiar(false);
-         solve(people);
+      person.setLiar(false);
+      solve(people);
+      // there should be no contradictions as each colouring is equivalent and there is guaranteed to be a solution.
+//      System.out.println(join(people, "\n"));
+      int count = 0;
+      for (Person p : people) {
+         if (p.isLiar()) count++;
       }
-      System.out.println();
-      System.out.println("\nSolved.");
-      System.out.println(join(people, "\n"));
+      count = Math.max(count, people.size()-count);
+      System.out.println(count + " " + (people.size()-count));
    }
 }

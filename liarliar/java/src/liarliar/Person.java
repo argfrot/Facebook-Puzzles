@@ -4,6 +4,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A node in the graph of accusations between people.
+ * Each node can be labelled with one of two colours.
+ *
+ * @author Graham Williamson
+ */
 public class Person {
 
    private final String my_name;
@@ -38,6 +44,11 @@ public class Person {
       return my_isLiar;
    }
    
+   /**
+    * Label this node. Goes on to set the labels of those it accuses recursively.
+    * @param label The label to set on this node.
+    * @throws Exception If a contradiction is detected.
+    */
    public void setLiar(boolean label) throws Exception {
       if (isLabelled()) {
          if (label == my_isLiar) return; // consistent
@@ -50,6 +61,13 @@ public class Person {
       }
    }
 
+   /**
+    * Infer the label of an unlabelled node from those that it has accused. If
+    * this node may be inferred, goes on to set the label for those it accuses
+    * if necessary.
+    * @return If an inference was made which changed the state of this node.
+    * @throws Exception If a contradiction occurs.
+    */
    public boolean inferLabel() throws Exception {
       if (isLabelled()) return false;
 
