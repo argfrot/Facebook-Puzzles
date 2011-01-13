@@ -17,7 +17,7 @@
 	</tstamp>
 	
 	<path id="classpath">
-		<fileset dir="${libraries}" erroronmissingdir="false">
+		<fileset dir="${libraries}">
 			<include name="**${file.separator}*.jar" />
 		</fileset>
 		<dirset dir="${classes}" />
@@ -58,7 +58,7 @@
 	</target>
 	
 	<target name="archive" depends="clean">
-		<zip destfile="${keyword}.zip" basedir="." excludes="**/.**, **/.settings/**" />
+		<zip destfile="${keyword}.zip" basedir="." excludes="**/.**, **/.settings/**, src/test/**" />
 	</target>
 	
 </project>
