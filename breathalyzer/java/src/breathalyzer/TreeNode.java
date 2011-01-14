@@ -1,5 +1,6 @@
 package breathalyzer;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +55,14 @@ public class TreeNode {
    
    public TreeNode getChild(char branch) {
       return my_children.get(branch);
+   }
+   
+   public boolean hasChildren() {
+      return !my_children.isEmpty();
+   }
+
+   public Collection<TreeNode> getChildren() {
+      return my_children.values();
    }
    
    public int size() {
