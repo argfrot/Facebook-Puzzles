@@ -16,6 +16,7 @@ import com.merriampark.CombinationGenerator;
 public class Breathalyzer {
 
    private static final char MATCH_ANY = '.';
+   private static final int MAX_EDITS = 15;
 
    private static final String join(final Collection<Object> list, final String delimiter) {
       StringBuffer buffer = new StringBuffer();
@@ -59,6 +60,7 @@ public class Breathalyzer {
                return false;
             } else {
                for (TreeNode child : node.getChildren()) {
+                  if (child.getBranchDepth()+level+1 < toMatch.length) continue;
                   if (match(child,toMatch,level+1)) {
                      return true;
                   }
@@ -67,7 +69,7 @@ public class Breathalyzer {
             }
          } else {
             TreeNode child = node.getChild(next);
-            if (child != null) {
+            if (child != null && child.getBranchDepth()+level+1 >= toMatch.length) {
                return match(child, toMatch, level+1);
             } else {
                return false;
@@ -77,6 +79,7 @@ public class Breathalyzer {
    }
 
    public static boolean tryReplace(TreeNode dictionary, String toMatch, int edits) {
+      if (edits > toMatch.length()) return false;
       CombinationGenerator possibilities = new CombinationGenerator(toMatch.length(), edits);
       while (possibilities.hasMore()) {
          int[] next = possibilities.getNext();
@@ -84,7 +87,7 @@ public class Breathalyzer {
          for(int n : next) {
             replaced[n] = MATCH_ANY;
          }
-         System.out.println("Trying to match with: " + String.valueOf(replaced));
+//         System.out.println("Trying to match with: " + String.valueOf(replaced));
          if (match(dictionary,replaced,0)) {
             return true;
          }
@@ -97,7 +100,7 @@ public class Breathalyzer {
       while (possibilities.hasMore()) {
          int[] next = possibilities.getNext();
          char[] replaced = delete(toMatch, next);
-         System.out.println("Trying to match with: " + String.valueOf(replaced));
+//         System.out.println("Trying to match with: " + String.valueOf(replaced));
          if (match(dictionary,replaced,0)) {
             return true;
          }
@@ -124,7 +127,7 @@ public class Breathalyzer {
       while (possibilities.hasMore()) {
          int[] next = possibilities.getNext();
          char[] replaced = insert(toMatch, next);
-         System.out.println("Trying to match with: " + String.valueOf(replaced));
+//         System.out.println("Trying to match with: " + String.valueOf(replaced));
          if (match(dictionary,replaced,0)) {
             return true;
          }
@@ -146,12 +149,65 @@ public class Breathalyzer {
       }
       return out;
    }
+
+   public static boolean tryDeleteAndReplace(TreeNode dictionary, String toMatch, int edits) {
+      if (edits >= toMatch.length()) return false;
+      for(int deletes=1; deletes<=edits; deletes++) {
+         CombinationGenerator deleteCombines = new CombinationGenerator(toMatch.length(), deletes);
+         while (deleteCombines.hasMore()) {
+            int[] nextDelete = deleteCombines.getNext();
+            char[] withDeletes = delete(toMatch, nextDelete);
+
+//            System.out.println(toMatch + " " + edits + " " + withDeletes.length + " " + (edits-deletes));
+            CombinationGenerator possibilities = new CombinationGenerator(withDeletes.length, edits-deletes);
+            while (possibilities.hasMore()) {
+               int[] next = possibilities.getNext();
+               char[] replaced = withDeletes.clone();
+               for(int n : next) {
+                  replaced[n] = MATCH_ANY;
+               }
+//               System.out.println("Trying to match with: " + String.valueOf(replaced));
+               if (match(dictionary,replaced,0)) {
+                  return true;
+               }
+            }
+
+         }
+      }
+      return false;
+   }
+
+   public static boolean tryInsertAndReplace(TreeNode dictionary, String toMatch, int edits) {
+      for(int inserts=1; inserts<=edits; inserts++) {
+         CombinationGenerator insertCombines = new CombinationGenerator(toMatch.length(), inserts);
+         while (insertCombines.hasMore()) {
+            int[] nextInsert = insertCombines.getNext();
+            char[] withInserts = insert(toMatch, nextInsert);
+
+            CombinationGenerator possibilities = new CombinationGenerator(withInserts.length, edits-inserts);
+            while (possibilities.hasMore()) {
+               int[] next = possibilities.getNext();
+               char[] replaced = withInserts.clone();
+               for(int n : next) {
+                  if (replaced[n] == MATCH_ANY) continue;
+                  replaced[n] = MATCH_ANY;
+               }
+//               System.out.println("Trying to match with: " + String.valueOf(replaced));
+               if (match(dictionary,replaced,0)) {
+                  return true;
+               }
+            }
+
+         }
+      }
+      return false;
+   }
    
    public static int doEdits(TreeNode dictionary, String toMatch) {
-      for(int i=1; i<toMatch.length(); i++) {
-         if (tryRemove(dictionary, toMatch, i)
+      for(int i=1; i<MAX_EDITS; i++) {
+         if (tryDeleteAndReplace(dictionary, toMatch, i)
                || tryReplace(dictionary, toMatch, i)
-               || tryInsert(dictionary, toMatch, i)) {
+               || tryInsertAndReplace(dictionary, toMatch, i)) {
             return i;
          }
       }
@@ -160,10 +216,33 @@ public class Breathalyzer {
    
    public static void main(String[] args) throws Exception {
       TreeNode dict = loadDictionary(new FileReader(args[0]));
-      System.out.println(dict.size());
-      System.out.println(match(dict,args[1]));
-      System.out.println(tryReplace(dict, args[1], 1));
-      System.out.println(doEdits(dict, args[1]));
+      dict.calcDepths();
+//      System.out.println(dict.calcDepths());
+//      System.out.println(dict.toString());
+//      System.out.println(dict.size());
+//      System.out.println(match(dict,args[1]));
+//      System.out.println(doEdits(dict, args[1].toUpperCase()));
+      BufferedReader in = new BufferedReader(new FileReader(args[1]));
+      String line;
+      int edits = 0;
+      while ((line = in.readLine()) != null) {
+         line = line.trim().toUpperCase();
+         if (line.equals("")) continue;
+         String[] split = line.split("\\s+");
+         for (String word : split) {
+            System.out.print(word + ": ");
+            if (match(dict,word)) continue;
+            else {
+//               System.out.println("Looking for: " + word);
+               int n = doEdits(dict, word);
+               if (n < 0) {
+                  System.out.println("Bugger. Unable to match: " + word);
+               }
+               edits += n;
+            }
+         }
+      }
+      System.out.println(edits);
    }
 
 }

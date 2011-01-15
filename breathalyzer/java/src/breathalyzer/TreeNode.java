@@ -9,17 +9,20 @@ public class TreeNode {
    private final Map<Character, TreeNode> my_children;
    private String my_value;
    private boolean my_isLeaf;
+   private int my_maxBranchDepth;
 
    public TreeNode() {
       my_children = new HashMap<Character, TreeNode>();
       my_value = null;
       my_isLeaf = false;
+      my_maxBranchDepth = 0;
    }
    
    public TreeNode(String value) {
       my_children = new HashMap<Character, TreeNode>();
       my_value = value;
       my_isLeaf = (value != null);
+      my_maxBranchDepth = 0;
    }
    
    public void insert(String value) {
@@ -73,9 +76,25 @@ public class TreeNode {
       return s;
    }
    
+   public int getBranchDepth() {
+      return my_maxBranchDepth;
+   }
+
+   public int calcDepths() {
+      int maxDepth = 0;
+      for (TreeNode child : my_children.values()) {
+         int d = child.calcDepths();
+         if (d > maxDepth) {
+            maxDepth = d;
+         }
+      }
+      my_maxBranchDepth = maxDepth;
+      return maxDepth+1;
+   }
+   
    public String toString() {
       StringBuffer buffer = new StringBuffer();
-      buffer.append("([");
+      buffer.append("(" + my_maxBranchDepth + "[");
       buffer.append(isLeaf() ? my_value : "-");
       buffer.append("]");
       for (Map.Entry<Character, TreeNode> entry : my_children.entrySet()) {
